@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Import</title>
+</head>
+<body>
+
+    <h2>Upload CSV</h2>
+
+    <input type="file" id="fileInput">
+    <button onclick="uploadFile()">Upload</button>
+
+    <h3 id="status">Status: Idle</h3>
+    <h3 id="progress">Processed: 0</h3>
+
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById("fileInput");
+            const file = fileInput.files[0];
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            await fetch("http://127.0.0.1:8000/upload-csv", {
+                method: "POST",
+                body: formData
+            });
+
+            startPolling();
+        }
+
+        function startPolling() {
+            setInterval(async () => {
+                const res = await fetch("http://127.0.0.1:8000/progress");
+                const data = await res.json();
+
+                document.getElementById("status").innerText = "Status: " + data.status;
+                document.getElementById("progress").innerText = "Processed: " + data.processed;
+            }, 1000);
+        }
+    </script>
+
+</body>
+</html>
